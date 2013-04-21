@@ -59,6 +59,9 @@
       [res v]
       (recur (write-bytes codec res (first v)) (dec x) (rest v)))))
 
+(defn- unpack-single-into
+  [source xs [codec size times]]
+  (read-bytes-into codec source times xs))
 ;
 ; Public API
 ;
@@ -87,9 +90,5 @@
 (defn unpack
   "Unpacks the source according to the given format. The result is a sequence even if it contains only one item. If the source doesn't have enough data to unpack the format, nils will be returned in place of missing values."
   [fmt source]
-  (loop [r []
-         p (struct-parse fmt)]
-    (if (empty? p)
-      r
-      (let [[codec size times] (first p)]
-        (recur (read-bytes-into codec source times r) (rest p))))))
+  (let [pattern (struct-parse fmt)]
+    (reduce (partial unpack-single-into source) [] pattern)))
