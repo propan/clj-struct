@@ -37,7 +37,7 @@ Include the library in your leiningen project dependencies:
 ; calculates the size of the struct corresponding to the given format
 (calc-size "11sii?")
 
-; return a byte buffer containing the values packed according to the given format
+; returns a byte buffer containing the values packed according to the given format
 (def bytes-buf (pack "11sii?" ["some string" -28 499 false]))
 
 ; returns a sequence of unpacked values
