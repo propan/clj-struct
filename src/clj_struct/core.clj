@@ -55,7 +55,7 @@
 (defn- pack-single
   [b codec times xs]
   (loop [res b x times v xs]
-    (if (zero? 0)
+    (if (zero? x)
       [res v]
       (recur (write-bytes codec res (first v)) (dec x) (rest v)))))
 

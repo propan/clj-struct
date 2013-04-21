@@ -26,6 +26,12 @@
         r (unpack fmt b)]
     (is (= xs r))))
 
+(defn- back-and-forth-test-with-diff-formats
+  [pack-format unpack-format xs expected-xs]
+  (let [b (pack pack-format xs)
+        r (unpack unpack-format b)]
+    (is (= expected-xs r))))
+
 (deftest complext-pack-test
   (testing "Test packing/unpacking with different combinations of data"
     (back-and-forth-test "4s c ?? 3s i" ["test" \g true false "dog" 123])
@@ -36,6 +42,11 @@
     (back-and-forth-test "2c 2? 2s" [\a \b true false "sd"])
     (back-and-forth-test "5c" [\a \b \c \d \e])
     (back-and-forth-test "4?" [false true false true])
-    (back-and-forth-test "hH" [-32768 65535])
+    (back-and-forth-test "ccc ii" [\a \b \c 5 747])
     (back-and-forth-test "cbB?hHiIqQfd4s" [\d -2 254 false -32768 65535 -2147483648 4294967295 -9223372036854775807 18446744073709551615N (float 0.2) 0.56652 "text"])
     (back-and-forth-test "2s3s2s" ["no" "yes" "no"])))
+
+(deftest complext-pack-test
+  (testing "Test packing/unpacking with different format strings"
+    (back-and-forth-test-with-diff-formats "4c" "4s" [\t \e \s \t] ["test"])
+    (back-and-forth-test-with-diff-formats "cc iii 3s 2s" "2c3i5s" [\c \j 7 -2 68 "yes" "no"] [\c \j 7 -2 68 "yesno"])))
