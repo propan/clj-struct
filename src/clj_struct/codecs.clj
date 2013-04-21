@@ -68,8 +68,10 @@
   (.longValue (bigint x)))
 
 (defn first-n-letters
+  "Returns first n letters (or less, if the string is too short) of the given string. "
   [s n]
   (.substring s 0 (min (.length s) n)))
+
 ;
 ;
 ;

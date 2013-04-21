@@ -33,7 +33,8 @@
   [name times]
   (let [type (keyword name)
         codec (type primitive-codecs)]
-    (cond (= :s type) [(string-codec times) times 1]
+    (cond
+      (= :s type) [(string-codec times) times 1]
       (nil? codec) (throw (Exception. (format "Unkown type %s" type)))
       :else [codec (size-of codec) times])))
 
