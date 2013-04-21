@@ -23,7 +23,7 @@
 (defn byte->boolean
   "Returns the value of the given byte as a boolean."
   [x]
-  (if (= 0 x)
+  (if (zero? x)
       false
       true))
 
@@ -91,7 +91,7 @@
      (read-bytes-into [this# buffer# times# xs#]
        (loop [i# times#
               r# xs#]
-         (if (= 0 i#)
+         (if (zero? i#)
              r#
              (recur (dec i#)
                (conj r# (when (<= ~size (.remaining buffer#))
@@ -112,7 +112,7 @@
     (read-bytes-into [_ buffer times xs]
       (loop [i times
              r xs]
-        (if (= 0 i)
+        (if (zero? i)
           r
           (recur (dec i)
                  (conj r (when (<= length (.remaining buffer))
