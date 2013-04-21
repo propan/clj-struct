@@ -15,7 +15,7 @@ Include the library in your leiningen project dependencies:
 | ------ | ------------------ | ------------ | ---- |
 | c      | char               | char         |  1   |
 | b	     | signed char        | byte         |  1   |
-| B      | unsigned char      | byte         |  1   |
+| B      | unsigned char      | int          |  1   |
 | ?      | _Bool              | boolean      |  1   |
 | h      | short              | short        |  2   |
 | H      | unsigned short     | int          |  2   |
