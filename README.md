@@ -7,7 +7,9 @@ The library was inspired by Python [struct] [1] module.
 
 Include the library in your leiningen project dependencies:
 
+```clojure
 [clj-struct "0.1.0-SNAPSHOT"]
+```
 
 ## Supported Format Characters
 
