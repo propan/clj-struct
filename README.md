@@ -43,7 +43,7 @@ Include the library in your leiningen project dependencies:
 (def bytes-buf (pack "11sii?" ["some string" -28 499 false]))
 
 ; returns a sequence of unpacked values
-(den unpacked-seq (unpack "11sii?" bytes-buf))
+(def unpacked-seq (unpack "11sii?" bytes-buf))
 
 ; reads first 30 integers from a binary file
 (with-open [file (RandomAccessFile. "/path/to/file" "r")]
