@@ -9,7 +9,8 @@
   (:use
     [clj-struct codecs])
   (:import
-    [java.nio ByteBuffer ByteOrder]))
+    [java.io RandomAccessFile]
+    [java.nio ByteBuffer]))
 
 ;
 ; Utility functions
@@ -62,6 +63,21 @@
 (defn- unpack-single-into
   [source xs [codec size times]]
   (read-bytes-into codec source times xs))
+
+(defn byte-buffer
+  "Coerce the value to a ByteBuffer of the given size. Values that are already ByteBuffers are returned untouched."
+  [x size]
+  (cond
+    (instance? ByteBuffer x) x
+    (instance? RandomAccessFile x) (let [channel (.getChannel x)
+                                         bb (ByteBuffer/allocate size)
+                                         _ (.read channel bb)
+                                         _ (.rewind bb)]
+                                     ; it's possible to check if the number of bytes read is the same as we want, but..
+                                     ; probably it's not worth it, at least for now
+                                     bb)
+    :else (throw (Exception. (str "Cannot convert to ByteBuffer: " x)))))
+
 ;
 ; Public API
 ;
@@ -90,5 +106,7 @@
 (defn unpack
   "Unpacks the source according to the given format. The result is a sequence even if it contains only one item. If the source doesn't have enough data to unpack the format, nils will be returned in place of missing values."
   [fmt source]
-  (let [pattern (struct-parse fmt)]
-    (reduce (partial unpack-single-into source) [] pattern)))
+  (let [pattern (struct-parse fmt)
+        size (calc-size-int pattern)
+        bb (byte-buffer source size)]
+    (reduce (partial unpack-single-into bb) [] pattern)))
