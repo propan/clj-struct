@@ -64,7 +64,7 @@
   [source xs [codec size times]]
   (read-bytes-into codec source times xs))
 
-(defn byte-buffer
+(defn- byte-buffer
   "Coerce the value to a ByteBuffer of the given size. Values that are already ByteBuffers are returned untouched."
   [x size]
   (cond
