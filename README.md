@@ -34,11 +34,14 @@ Include the library in your leiningen project dependencies:
 ```clojure
 (use 'clj-struct.core)
 
-(calc-size "11sii?") ; calculates the size of the struct corresponding to the given format
+; calculates the size of the struct corresponding to the given format
+(calc-size "11sii?")
 
-(def bytes-buf (pack "11sii?" ["some string" -28 499 false])) ; return a byte buffer containing the values packed according to the given format
+; return a byte buffer containing the values packed according to the given format
+(def bytes-buf (pack "11sii?" ["some string" -28 499 false]))
 
-(den unpacked-seq (unpack "11sii?" bytes-buf)) ; returns a sequence of unpacked values
+; returns a sequence of unpacked values
+(den unpacked-seq (unpack "11sii?" bytes-buf))
 ```
 
 ## License
