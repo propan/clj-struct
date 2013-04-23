@@ -123,12 +123,12 @@
   (let [pattern (struct-parse fmt)
         size (calc-size-int pattern)
         bb (byte-buffer source size)]
-    (loop [r (transient [])
-           b (if (pos? limit) limit size)
+    (loop [result (transient [])
+           read-limit (if (pos? limit) limit size)
            p pattern]
       (if (empty? p)
-        (persistent! r)
-        (let [[result xs new-limit] (unpack-single-into source r (first p) no-nils b)]
-          (if (false? result)
+        (persistent! result)
+        (let [[success xs new-limit] (unpack-single-into bb result (first p) no-nils read-limit)]
+          (if (false? success)
             (persistent! xs)
             (recur xs new-limit (rest p))))))))
