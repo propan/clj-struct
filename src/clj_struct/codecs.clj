@@ -58,8 +58,8 @@
   "Returns the value of the given long as a bigint, when treated as unsigned."
   [x]
   (let [bytes (-> (ByteBuffer/allocate 8)
-                   (.putLong x)
-                   (.array))]
+                  (.putLong x)
+                  (.array))]
     (BigInteger. 1 bytes)))
 
 (defn ulong->long
@@ -71,6 +71,27 @@
   "Returns first n letters (or less, if the string is too short) of the given string. "
   [s n]
   (.substring s 0 (min (.length s) n)))
+
+;
+; Some helper functions
+;
+
+(defn- str->bytes
+  [value length]
+  (let [str (first-n-letters value length)
+        str-len (count value)
+        bytes (.getBytes str)]
+    (if (< str-len length)
+      (let [buffer (byte-array length)
+            _ (System/arraycopy bytes 0 buffer 0 str-len)]
+        buffer)
+      bytes)))
+
+(defn- get-string
+  [buffer length]
+  (let [b (byte-array length)
+        _ (.get buffer b)]
+    (.trim (String. b))))
 
 ;
 ;
@@ -94,10 +115,10 @@
        (loop [i# times#
               r# xs#]
          (if (zero? i#)
-             r#
-             (recur (dec i#)
-               (conj r# (when (<= ~size (.remaining buffer#))
-                              (~get-transformer (~get buffer#))))))))
+           r#
+           (recur (dec i#)
+             (conj r# (when (<= ~size (.remaining buffer#))
+                        (~get-transformer (~get buffer#))))))))
      (write-bytes [this# buffer# value#]
        (when (<= ~size (.remaining buffer#))
          (~put buffer# (~put-transformer value#)))
@@ -117,18 +138,15 @@
         (if (zero? i)
           r
           (recur (dec i)
-                 (conj r (when (<= length (.remaining buffer))
-                            (let [b (byte-array length)
-                                  _ (.get buffer b)]
-                              (String. b))))))))
+            (conj r (when (<= length (.remaining buffer))
+                      (get-string buffer length)))))))
     (write-bytes [_ buffer value]
-      (let [m (min (.remaining buffer) (count value))]
-        (when (pos? m)
-          (.put buffer (.getBytes (first-n-letters value m))))
-        buffer))))
+      (when (>= (.remaining buffer) length)
+        (.put buffer (str->bytes value length)))
+      buffer)))
 
 (def primitive-codecs
-  {:c (basic-codec .get .put 1 char byte ) ; char
+  {:c (basic-codec .get .put 1 char byte) ; char
    :b (basic-codec .get .put 1 identity byte) ; signed byte
    :B (basic-codec .get .put 1 byte->ubyte ubyte->byte) ; unsigned byte
    :? (basic-codec .get .put 1 byte->boolean boolean->byte) ; boolean

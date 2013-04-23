@@ -39,6 +39,7 @@
     (back-and-forth-test "3si" ["dog" 13])
     (back-and-forth-test "?i2s?i" [true 666 "no" false 12345])
     (back-and-forth-test "3i" [10 578 271])
+    (back-and-forth-test "10si" ["some" 12345])
     (back-and-forth-test "2c 2? 2s" [\a \b true false "sd"])
     (back-and-forth-test "5c" [\a \b \c \d \e])
     (back-and-forth-test "4?" [false true false true])
@@ -46,7 +47,7 @@
     (back-and-forth-test "cbB?hHiIqQfd4s" [\d -2 254 false -32768 65535 -2147483648 4294967295 -9223372036854775807 18446744073709551615N (float 0.2) 0.56652 "text"])
     (back-and-forth-test "2s3s2s" ["no" "yes" "no"])))
 
-(deftest complext-pack-test
+(deftest complext-pack-test-with-diff-format
   (testing "Test packing/unpacking with different format strings"
     (back-and-forth-test-with-diff-formats "4c" "4s" [\t \e \s \t] ["test"])
     (back-and-forth-test-with-diff-formats "cc iii 3s 2s" "2c3i5s" [\c \j 7 -2 68 "yes" "no"] [\c \j 7 -2 68 "yesno"])))
