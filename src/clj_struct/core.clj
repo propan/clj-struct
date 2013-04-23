@@ -61,10 +61,6 @@
       [res v]
       (recur (write-bytes codec res (first v)) (dec x) (rest v)))))
 
-(defn- unpack-single-into
-  [source xs [codec size times]]
-  (read-bytes-into codec source times xs))
-
 (defn- byte-buffer
   "Coerce the value to a ByteBuffer of the given size. Values that are already ByteBuffers are returned untouched."
   [x size]
@@ -78,6 +74,20 @@
                                      ; probably it's not worth it, at least for now
                                      bb)
     :else (throw (Exception. (str "Cannot convert to ByteBuffer: " x)))))
+
+(defn- unpack-single-into
+  "NB: expects the given seq to be transient"
+  [source xs [codec size times] no-nils read-limit]
+  (loop [counter times
+         limit read-limit
+         result xs]
+    (cond
+      (zero? counter) [true result limit]
+      (< limit size) [false result limit]
+      :else (let [value (read-bytes codec source)]
+              (if (and (nil? value) no-nils)
+                [false result]
+                (recur (dec counter) (- limit size) (conj! result value)))))))
 
 ;
 ; Public API
@@ -105,9 +115,20 @@
           (recur res (rest p) v))))))
 
 (defn unpack
-  "Unpacks the source according to the given format. The result is a sequence even if it contains only one item. If the source doesn't have enough data to unpack the format, nils will be returned in place of missing values."
-  [fmt source]
+  "Unpacks the source according to the given format. The result is a sequence even if it contains only one item.
+   If the source doesn't have enough data to unpack the format, nils will be returned in place of missing values.
+   If you want unpacking to stop when it reads nil, set an optional parameter :no-nils to true.
+   If you want unpacking to stop when it reads specific amount of bytes, set an optional parameter :limit to the desired value."
+  [fmt source & {:keys [no-nils limit] :or {no-nils false limit -1}}]
   (let [pattern (struct-parse fmt)
         size (calc-size-int pattern)
         bb (byte-buffer source size)]
-    (reduce (partial unpack-single-into bb) [] pattern)))
+    (loop [r (transient [])
+           b (if (pos? limit) limit size)
+           p pattern]
+      (if (empty? p)
+        (persistent! r)
+        (let [[result xs new-limit] (unpack-single-into source r (first p) no-nils b)]
+          (if (false? result)
+            (persistent! xs)
+            (recur xs new-limit (rest p))))))))

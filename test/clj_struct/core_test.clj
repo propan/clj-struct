@@ -51,3 +51,15 @@
   (testing "Test packing/unpacking with different format strings"
     (back-and-forth-test-with-diff-formats "4c" "4s" [\t \e \s \t] ["test"])
     (back-and-forth-test-with-diff-formats "cc iii 3s 2s" "2c3i5s" [\c \j 7 -2 68 "yes" "no"] [\c \j 7 -2 68 "yesno"])))
+
+(deftest test-unpack-with-no-nils
+  (testing "Test unpacking with no nils"
+    (let [b (pack "2i" [10 57])
+          r (unpack "5i" b :no-nils true)]
+      (is (= [10 57] r)))))
+
+(deftest test-unpack-with-limit
+  (testing "Test unpacking with no nils"
+    (let [b (pack "5i" [10 57 23 45 62])
+          r (unpack "5i" b :limit 12)]
+      (is (= [10 57 23] r)))))

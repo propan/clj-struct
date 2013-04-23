@@ -99,8 +99,7 @@
 
 (defprotocol Codec
   (size-of [this])
-  (read-bytes [this buffer times])
-  (read-bytes-into [this buffer times xs])
+  (read-bytes [this buffer])
   (write-bytes [this buffer value]))
 
 (defmacro basic-codec [get put size get-transformer put-transformer]
@@ -109,16 +108,9 @@
      Codec
      (size-of [_]
        ~size)
-     (read-bytes [this# buffer# times#]
-       (read-bytes-into this# buffer# times# []))
-     (read-bytes-into [this# buffer# times# xs#]
-       (loop [i# times#
-              r# xs#]
-         (if (zero? i#)
-           r#
-           (recur (dec i#)
-             (conj r# (when (<= ~size (.remaining buffer#))
-                        (~get-transformer (~get buffer#))))))))
+     (read-bytes [this# buffer#]
+       (when (<= ~size (.remaining buffer#))
+         (~get-transformer (~get buffer#))))
      (write-bytes [this# buffer# value#]
        (when (<= ~size (.remaining buffer#))
          (~put buffer# (~put-transformer value#)))
@@ -130,16 +122,9 @@
     Codec
     (size-of [_]
       length)
-    (read-bytes [this buffer times]
-      (read-bytes-into this buffer times []))
-    (read-bytes-into [_ buffer times xs]
-      (loop [i times
-             r xs]
-        (if (zero? i)
-          r
-          (recur (dec i)
-            (conj r (when (<= length (.remaining buffer))
-                      (get-string buffer length)))))))
+    (read-bytes [this buffer]
+      (when (<= length (.remaining buffer))
+        (get-string buffer length)))
     (write-bytes [_ buffer value]
       (when (>= (.remaining buffer) length)
         (.put buffer (str->bytes value length)))
